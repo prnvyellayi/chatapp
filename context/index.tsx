@@ -21,7 +21,7 @@ export const ContextProvider = ({
     username,
     setUsername,
     secret,
-    setSecret
+    setSecret,
   };
 
   return <Context.Provider value={value}>
