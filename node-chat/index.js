@@ -17,13 +17,13 @@ app.use(cors({
 
 const io = require('socket.io')(http)
 
-var messsages= []
+var messages= []
 
 io.on("connection", (socket) => {
     console.log("connected...")
     socket.on('send-message', (message) => {
+        messages.push(message)
         console.log(message)
-        messsages.push(message)
         socket.broadcast.emit('recieve-message',(message))
     })
 })
