@@ -74,7 +74,7 @@ const Chat = () => {
           </div>
           <div className="flex flex-col justify-end w-[70%] h-full">
             {username && (
-              <div className="flex flex-col p-[10px] overflow-scroll gap-[10px]">
+              <div className="flex flex-col p-[10px] overflow-scroll overflow-x-hidden gap-[10px]">
                 {messages.map(
                   (
                     each: { username: string; message: string },
@@ -99,7 +99,7 @@ const Chat = () => {
                 type="text"
                 value={message}
                 onChange={(e) => setMessage(e.target.value)}
-                className="rounded-[10px] w-[90%] bg-white px-[1vw] h-[50px] text-[17px]"
+                className="rounded-[10px] w-[90%] bg-white px-[1vw] h-[50px] text-[17px] focus:outline-none"
               ></input>
               <button
                 type="submit"
