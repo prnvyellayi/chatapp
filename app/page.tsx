@@ -47,22 +47,22 @@ export default function Home() {
               onChange={(e) => setSecret(e.target.value)}
             ></input>
           </div>
-          <button
-            type="submit"
-            className="h-[50px] bg-sky-500 w-4/5 rounded-lg"
+          <Link
+            className="text-white w-4/5"
+            href={{
+              pathname: "/chat",
+              query: {
+                username: username,
+              },
+            }}
           >
-            <Link
-              className="text-white"
-              href={{
-                pathname: "/chat",
-                query: {
-                  username:username
-                }
-              }}
+            <button
+              type="submit"
+              className="h-[50px] bg-sky-500 w-full rounded-lg"
             >
               Login / Sign up
-            </Link>
-          </button>
+            </button>
+          </Link>
         </form>
       </div>
     </>

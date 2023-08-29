@@ -3,7 +3,6 @@
 import { Context } from "@/context";
 import { useContext, useEffect, useState } from "react";
 import io from "socket.io-client";
-import { Server } from "socket.io";
 
 let socket: any;
 
@@ -12,7 +11,12 @@ type response = { username: string; message: string };
 const Chat = () => {
   const { username, secret } = useContext(Context);
   const [message, setMessage] = useState("");
-  const [messages, setMessages] = useState<any>([]);
+  const [messages1, setMessages1] = useState<any>([]);
+  const [messages2, setMessages2] = useState<any>([]);
+  const [messages3, setMessages3] = useState<any>([]);
+  const [messages4, setMessages4] = useState<any>([]);
+  const [messages5, setMessages5] = useState<any>([]);
+  const [activeRoom, setActiveRoom] = useState<any>("");
 
   useEffect(() => {
     socketInitializer();
@@ -27,20 +31,46 @@ const Chat = () => {
       upgrade: false,
       rejectUnauthorized: false,
     });
-    socket.on("recieve-message", (data: response) => {
+    socket.on("message", (data: response) => {
       console.log(data);
-      setMessages((pre: response[]) => [...pre, data]);
+      setMessages1((pre: response[]) => [...pre, data]);
     });
+  };
+
+  const getMessages = (room: string) => {
+    switch (room) {
+      case "room1":
+        return messages1;
+      case "room2":
+        return messages2;
+      case "room3":
+        return messages3;
+      case "room4":
+        return messages4;
+      case "room5":
+        return messages5;
+      default: 
+      return []
+    }
   };
 
   const handleSubmit = (event: any) => {
     event.preventDefault();
-    setMessages((pre: response[]) => [
-      ...pre,
-      { username: username, message: message },
-    ]);
-    socket.emit("send-message", { username, message });
-    setMessage("")
+    // setMessages1((pre: response[]) => [
+    //   ...pre,
+    //   { username: username, message: message },
+    // ]);
+    socket.emit("send-message", { username, activeRoom, message });
+    setMessage("");
+  };
+
+  const joinRoom = (name: string, room: string) => {
+    setActiveRoom(room);
+    socket.emit("join", { name, room }, (error: any) => {
+      if (error) {
+        alert(error);
+      }
+    });
   };
 
   return (
@@ -51,23 +81,38 @@ const Chat = () => {
             <span className="bg-[#eae6df] flex items-center justify-center text-[32px] h-[80px] border-b-[1px] border-gray-400">
               CHAT MATE
             </span>
-            <button className="w-full border-b-[1px] pl-[10px] justify-center border-gray-400 h-[60px] flex flex-col text-left">
+            <button
+              className="w-full border-b-[1px] pl-[10px] justify-center border-gray-400 h-[60px] flex flex-col text-left"
+              onClick={() => joinRoom(username, "room1")}
+            >
               <span className="text-[20px]">Room 1</span>
               <span className="text-[14px] text-gray-400">Join Room 1</span>
             </button>
-            <button className="w-full border-b-[1px] pl-[10px] justify-center border-gray-400 h-[60px] flex flex-col text-left">
+            <button
+              className="w-full border-b-[1px] pl-[10px] justify-center border-gray-400 h-[60px] flex flex-col text-left"
+              onClick={() => joinRoom(username, "room2")}
+            >
               <span className="text-[20px]">Room 2</span>
               <span className="text-[14px] text-gray-400">Join Room 2</span>
             </button>
-            <button className="w-full border-b-[1px] pl-[10px] justify-center border-gray-400 h-[60px] flex flex-col text-left">
+            <button
+              className="w-full border-b-[1px] pl-[10px] justify-center border-gray-400 h-[60px] flex flex-col text-left"
+              onClick={() => joinRoom(username, "room3")}
+            >
               <span className="text-[20px]">Room 3</span>
               <span className="text-[14px] text-gray-400">Join Room 3</span>
             </button>
-            <button className="w-full border-b-[1px] pl-[10px] justify-center border-gray-400 h-[60px] flex flex-col text-left">
+            <button
+              className="w-full border-b-[1px] pl-[10px] justify-center border-gray-400 h-[60px] flex flex-col text-left"
+              onClick={() => joinRoom(username, "room4")}
+            >
               <span className="text-[20px]">Room 4</span>
               <span className="text-[14px] text-gray-400">Join Room 4</span>
             </button>
-            <button className="w-full border-b-[1px] pl-[10px] justify-center border-gray-400 h-[60px] flex flex-col text-left">
+            <button
+              className="w-full border-b-[1px] pl-[10px] justify-center border-gray-400 h-[60px] flex flex-col text-left"
+              onClick={() => joinRoom(username, "room5")}
+            >
               <span className="text-[20px]">Room 5</span>
               <span className="text-[14px] text-gray-400">Join Room 5</span>
             </button>
@@ -75,7 +120,7 @@ const Chat = () => {
           <div className="flex flex-col justify-end w-[70%] h-full">
             {username && (
               <div className="flex flex-col p-[10px] overflow-scroll overflow-x-hidden gap-[10px]">
-                {messages.map(
+                {getMessages(activeRoom).map(
                   (
                     each: { username: string; message: string },
                     index: number
@@ -94,7 +139,10 @@ const Chat = () => {
                 )}
               </div>
             )}
-            <form className="flex w-[100%] p-[10px] justify-evenly gap-[10px] bg-[#eae6df]" onSubmit={handleSubmit}>
+            <form
+              className="flex w-[100%] p-[10px] justify-evenly gap-[10px] bg-[#eae6df]"
+              onSubmit={handleSubmit}
+            >
               <input
                 type="text"
                 value={message}
