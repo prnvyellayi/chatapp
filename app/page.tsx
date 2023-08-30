@@ -3,17 +3,27 @@
 import Link from "next/link";
 import { Context } from "@/context";
 import { useContext, useState } from "react";
+import { useRouter } from "next/navigation";
 
 export default function Home() {
   const { username, secret, setUsername, setSecret } = useContext(Context);
   const [error, setError] = useState(false);
+  const router = useRouter();
 
-  const handleSubmit = (event: any) => {
+  const handleSubmit = async (event: any) => {
     event.preventDefault();
-    if (username.length === 0 || secret.length === 0) {
-      setError(true);
+    const checkUser = await fetch("http://localhost:8080/addUser", {
+      method: "POST",
+      headers: {
+        "content-type": "application/json",
+      },
+      body: JSON.stringify({ username: username })
+    });
+    console.log(checkUser);
+    if (checkUser.status === 200) {
+      router.push("/chat");
     } else {
-      setError(false);
+      setError(true);
     }
   };
 
@@ -28,7 +38,7 @@ export default function Home() {
             NextJs Chat-App
             {error ? (
               <span className="text-[14px] text-red-600 font-medium">
-                Please enter correct Username or Password
+                Username already exists.
               </span>
             ) : (
               <></>
@@ -47,22 +57,12 @@ export default function Home() {
               onChange={(e) => setSecret(e.target.value)}
             ></input>
           </div>
-          <Link
-            className="text-white w-4/5"
-            href={{
-              pathname: "/chat",
-              query: {
-                username: username,
-              },
-            }}
+          <button
+            type="submit"
+            className="h-[50px] bg-sky-500 text-white w-4/5 rounded-lg"
           >
-            <button
-              type="submit"
-              className="h-[50px] bg-sky-500 w-full rounded-lg"
-            >
-              Login / Sign up
-            </button>
-          </Link>
+            Login / Sign up
+          </button>
         </form>
       </div>
     </>
