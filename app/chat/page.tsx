@@ -166,18 +166,33 @@ const Chat = () => {
                       each: { username: string; message: string },
                       index: number
                     ) => (
-                      <span
-                        key={index}
-                        className={`max-w-[50%] rounded-[10px] p-[10px] text-[15px] break-words	${
-                          each.username === "admin"
-                            ? "self-center text-[10px] text-center bg-gray-700 text-white flex items-center"
-                            : each.username === username
-                            ? "self-end rounded-tr-[0px] bg-gray-500 text-white"
-                            : "self-start rounded-tl-[0px] text-[#030303] border-2 bg-gray-100"
-                        }`}
-                      >
-                        {each.message}
-                      </span>
+                      <div className={`flex w-full ${each.username === 'admin' ? 'justify-center' : each.username === username ? 'justify-end' : 'justify-start gap-1'} `}>
+                        <span className={`w-[30px] h-[30px] rounded-[50%] bg-gray-800 flex justify-center items-center text-white text-[18px] ${each.username === 'admin' ? 'hidden' : each.username === username ? 'hidden' : 'self-start'}`}>
+                          {each.username.split("")[0].toUpperCase()}
+                        </span>
+                        <div
+                          key={index}
+                          className={`max-w-[50%] rounded-[10px] p-[10px] text-[14px] break-words	flex flex-col text-left ${
+                            each.username === "admin"
+                              ? "self-center text-[10px] text-center bg-gray-700 text-white flex items-center"
+                              : each.username === username
+                              ? "self-end rounded-tr-[0px] bg-gray-500 text-white"
+                              : "self-start rounded-tl-[0px] text-[#030303] border-2 bg-gray-100"
+                          }`}
+                        >
+                          <span
+                            className={
+                              each.username === "admin" ||
+                              each.username === username
+                                ? "hidden"
+                                : "font-bold text-[13px]"
+                            }
+                          >
+                            ~ {each.username}
+                          </span>
+                          <span>{each.message}</span>
+                        </div>
+                      </div>
                     )
                   )}
                 </div>
