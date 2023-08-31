@@ -166,7 +166,7 @@ const Chat = () => {
                       each: { username: string; message: string },
                       index: number
                     ) => (
-                      <div className={`flex w-full ${each.username === 'admin' ? 'justify-center' : each.username === username ? 'justify-end' : 'justify-start gap-1'} `}>
+                      <div key={index} className={`flex w-full ${each.username === 'admin' ? 'justify-center' : each.username === username ? 'justify-end' : 'justify-start gap-1'} `}>
                         <span className={`w-[30px] h-[30px] rounded-[50%] bg-gray-800 flex justify-center items-center text-white text-[18px] ${each.username === 'admin' ? 'hidden' : each.username === username ? 'hidden' : 'self-start'}`}>
                           {each.username.split("")[0].toUpperCase()}
                         </span>
