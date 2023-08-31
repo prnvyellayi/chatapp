@@ -6,11 +6,11 @@ import io from "socket.io-client";
 
 let socket: any;
 
-type response = { username: string; message: string };
+type response = { username: string; message: string; room: string };
 
 const Chat = () => {
   const { username, secret } = useContext(Context);
-  const [socketId, setSocketId] = useState("")
+  const [socketId, setSocketId] = useState("");
   const [message, setMessage] = useState("");
   const [messages1, setMessages1] = useState<any>([]);
   const [messages2, setMessages2] = useState<any>([]);
@@ -20,23 +20,41 @@ const Chat = () => {
   const [activeRoom, setActiveRoom] = useState<any>("");
 
   useEffect(() => {
+    const socketInitializer = async () => {
+      socket = io("http://localhost:8080", {
+        reconnectionDelay: 1000,
+        reconnection: true,
+        transports: ["websocket"],
+        agent: false,
+        upgrade: false,
+        rejectUnauthorized: false,
+      });
+      await socket.on("message", (data: response) => {
+        console.log(data);
+        switch (data.room) {
+          case "room1":
+            setMessages1((pre: response[]) => [...pre, data]);
+            break;
+          case "room2":
+            setMessages2((pre: response[]) => [...pre, data]);
+            break;
+          case "room3":
+            setMessages3((pre: response[]) => [...pre, data]);
+            break;
+          case "room4":
+            setMessages4((pre: response[]) => [...pre, data]);
+            break;
+          case "room5":
+            setMessages5((pre: response[]) => [...pre, data]);
+            break;
+          default:
+            return [];
+        }
+      });
+    };
+
     socketInitializer();
   }, []);
-
-  const socketInitializer = async () => {
-    socket = io("http://localhost:8080", {
-      reconnectionDelay: 1000,
-      reconnection: true,
-      transports: ["websocket"],
-      agent: false,
-      upgrade: false,
-      rejectUnauthorized: false,
-    });
-    socket.on("message", (data: response) => {
-      console.log(data);
-      setMessages1((pre: response[]) => [...pre, data]);
-    });
-  };
 
   const getMessages = (room: string) => {
     switch (room) {
@@ -50,24 +68,32 @@ const Chat = () => {
         return messages4;
       case "room5":
         return messages5;
-      default: 
-      return []
+      default:
+        return [];
     }
   };
 
-  const handleSubmit = (event: any) => {
+  const handleSubmit = async (event: any) => {
     event.preventDefault();
     // setMessages1((pre: response[]) => [
     //   ...pre,
     //   { username: username, message: message },
     // ]);
-    socket.emit("send-message", { username, activeRoom, message });
+    await socket.emit("send-message", { username, activeRoom, message });
     setMessage("");
   };
 
-  const joinRoom = (name: string, room: string) => {
+  const joinRoom = async (name: string, room: string) => {
+    if (activeRoom === room) return;
+    if (activeRoom !== "") {
+      await socket.emit("leaveRoom", { name, activeRoom }, (error: any) => {
+        if (error) {
+          alert(error);
+        }
+      });
+    }
     setActiveRoom(room);
-    socket.emit("join", { name, room }, (error: any) => {
+    await socket.emit("join", { name, room }, (error: any) => {
       if (error) {
         alert(error);
       }
@@ -83,62 +109,79 @@ const Chat = () => {
               CHAT MATE
             </span>
             <button
-              className="w-full border-b-[1px] pl-[10px] justify-center border-gray-400 h-[60px] flex flex-col text-left"
+              className={`w-full border-b-[1px] pl-[10px] justify-center border-gray-400 h-[60px] flex flex-col text-left ${
+                activeRoom === "room1" ? "bg-gray-600 text-white" : ""
+              }`}
               onClick={() => joinRoom(username, "room1")}
             >
               <span className="text-[20px]">Room 1</span>
               <span className="text-[14px] text-gray-400">Join Room 1</span>
             </button>
             <button
-              className="w-full border-b-[1px] pl-[10px] justify-center border-gray-400 h-[60px] flex flex-col text-left"
+              className={`w-full border-b-[1px] pl-[10px] justify-center border-gray-400 h-[60px] flex flex-col text-left ${
+                activeRoom === "room2" ? "bg-gray-600 text-white" : ""
+              }`}
               onClick={() => joinRoom(username, "room2")}
             >
               <span className="text-[20px]">Room 2</span>
               <span className="text-[14px] text-gray-400">Join Room 2</span>
             </button>
             <button
-              className="w-full border-b-[1px] pl-[10px] justify-center border-gray-400 h-[60px] flex flex-col text-left"
+              className={`w-full border-b-[1px] pl-[10px] justify-center border-gray-400 h-[60px] flex flex-col text-left ${
+                activeRoom === "room3" ? "bg-gray-600 text-white" : ""
+              }`}
               onClick={() => joinRoom(username, "room3")}
             >
               <span className="text-[20px]">Room 3</span>
               <span className="text-[14px] text-gray-400">Join Room 3</span>
             </button>
             <button
-              className="w-full border-b-[1px] pl-[10px] justify-center border-gray-400 h-[60px] flex flex-col text-left"
+              className={`w-full border-b-[1px] pl-[10px] justify-center border-gray-400 h-[60px] flex flex-col text-left ${
+                activeRoom === "room4" ? "bg-gray-600 text-white" : ""
+              }`}
               onClick={() => joinRoom(username, "room4")}
             >
               <span className="text-[20px]">Room 4</span>
               <span className="text-[14px] text-gray-400">Join Room 4</span>
             </button>
             <button
-              className="w-full border-b-[1px] pl-[10px] justify-center border-gray-400 h-[60px] flex flex-col text-left"
+              className={`w-full border-b-[1px] pl-[10px] justify-center border-gray-400 h-[60px] flex flex-col text-left ${
+                activeRoom === "room5" ? "bg-gray-600 text-white" : ""
+              }`}
               onClick={() => joinRoom(username, "room5")}
             >
               <span className="text-[20px]">Room 5</span>
               <span className="text-[14px] text-gray-400">Join Room 5</span>
             </button>
           </div>
-          <div className="flex flex-col justify-end w-[70%] h-full">
+          <div className="flex flex-col justify-end w-[70%] h-full relative">
             {username && (
-              <div className="flex flex-col p-[10px] overflow-scroll overflow-x-hidden gap-[10px]">
-                {getMessages(activeRoom).map(
-                  (
-                    each: { username: string; message: string },
-                    index: number
-                  ) => (
-                    <span
-                      key={index}
-                      className={`max-w-[50%] rounded-[10px] p-[10px] text-[17px] break-words	${
-                        each.username === username
-                          ? "self-end rounded-tr-[0px] bg-gray-400 text-white"
-                          : "self-start rounded-tl-[0px] text-[#030303] border-2 bg-gray-100"
-                      }`}
-                    >
-                      {each.message}
-                    </span>
-                  )
-                )}
-              </div>
+              <>
+                <div className="w-full h-[80px] absolute top-0 bg-[#eae6df] text-[32px] text-[#030303] flex items-center justify-center">
+                  {activeRoom.toUpperCase()}
+                </div>
+                <div className="flex flex-col p-[10px] overflow-scroll overflow-x-hidden gap-[10px] mt-[80px]">
+                  {getMessages(activeRoom).map(
+                    (
+                      each: { username: string; message: string },
+                      index: number
+                    ) => (
+                      <span
+                        key={index}
+                        className={`max-w-[50%] rounded-[10px] p-[10px] text-[15px] break-words	${
+                          each.username === "admin"
+                            ? "self-center text-[10px] text-center bg-gray-700 text-white flex items-center"
+                            : each.username === username
+                            ? "self-end rounded-tr-[0px] bg-gray-500 text-white"
+                            : "self-start rounded-tl-[0px] text-[#030303] border-2 bg-gray-100"
+                        }`}
+                      >
+                        {each.message}
+                      </span>
+                    )
+                  )}
+                </div>
+              </>
             )}
             <form
               className="flex w-[100%] p-[10px] justify-evenly gap-[10px] bg-[#eae6df]"
