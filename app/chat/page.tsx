@@ -10,7 +10,6 @@ type response = { username: string; message: string; room: string };
 
 const Chat = () => {
   const { username, secret } = useContext(Context);
-  const [socketId, setSocketId] = useState("");
   const [message, setMessage] = useState("");
   const [messages1, setMessages1] = useState<any>([]);
   const [messages2, setMessages2] = useState<any>([]);
@@ -21,7 +20,7 @@ const Chat = () => {
 
   useEffect(() => {
     const socketInitializer = async () => {
-      socket = io("http://localhost:8080", {
+      socket = io(`${process.env.CHAT_SERVER}`, {
         reconnectionDelay: 1000,
         reconnection: true,
         transports: ["websocket"],

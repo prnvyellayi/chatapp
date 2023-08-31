@@ -12,7 +12,7 @@ export default function Home() {
 
   const handleSubmit = async (event: any) => {
     event.preventDefault();
-    const checkUser = await fetch("http://localhost:8080/addUser", {
+    const checkUser = await fetch(`${process.env.CHAT_SERVER}/addUser`, {
       method: "POST",
       headers: {
         "content-type": "application/json",
