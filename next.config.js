@@ -2,7 +2,7 @@
 const nextConfig = {
     reactStrictMode: true,
     env: {
-      CHAT_SERVER: process.env.CHAT_SERVER,
+      NEXT_PUBLIC_CHAT_SERVER: process.env.NEXT_PUBLIC_CHAT_SERVER,
     }}
 
 module.exports = nextConfig

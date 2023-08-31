@@ -20,7 +20,7 @@ const Chat = () => {
 
   useEffect(() => {
     const socketInitializer = async () => {
-      socket = io(`${process.env.CHAT_SERVER}`, {
+      socket = io(`${process.env.NEXT_PUBLIC_CHAT_SERVER}`, {
         reconnectionDelay: 1000,
         reconnection: true,
         transports: ["websocket"],
