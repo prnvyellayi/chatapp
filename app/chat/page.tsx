@@ -109,7 +109,7 @@ const Chat = () => {
             </span>
             <button
               className={`w-full border-b-[1px] pl-[10px] justify-center border-gray-400 h-[60px] flex flex-col text-left ${
-                activeRoom === "room1" ? "bg-gray-600 text-white" : ""
+                activeRoom === "room1" ? "bg-gray-600 text-white" : "text-black"
               }`}
               onClick={() => joinRoom(username, "room1")}
             >
@@ -118,7 +118,7 @@ const Chat = () => {
             </button>
             <button
               className={`w-full border-b-[1px] pl-[10px] justify-center border-gray-400 h-[60px] flex flex-col text-left ${
-                activeRoom === "room2" ? "bg-gray-600 text-white" : ""
+                activeRoom === "room2" ? "bg-gray-600 text-white" : "text-black"
               }`}
               onClick={() => joinRoom(username, "room2")}
             >
@@ -127,7 +127,7 @@ const Chat = () => {
             </button>
             <button
               className={`w-full border-b-[1px] pl-[10px] justify-center border-gray-400 h-[60px] flex flex-col text-left ${
-                activeRoom === "room3" ? "bg-gray-600 text-white" : ""
+                activeRoom === "room3" ? "bg-gray-600 text-white" : "text-black"
               }`}
               onClick={() => joinRoom(username, "room3")}
             >
@@ -136,7 +136,7 @@ const Chat = () => {
             </button>
             <button
               className={`w-full border-b-[1px] pl-[10px] justify-center border-gray-400 h-[60px] flex flex-col text-left ${
-                activeRoom === "room4" ? "bg-gray-600 text-white" : ""
+                activeRoom === "room4" ? "bg-gray-600 text-white" : "text-black"
               }`}
               onClick={() => joinRoom(username, "room4")}
             >
@@ -145,7 +145,7 @@ const Chat = () => {
             </button>
             <button
               className={`w-full border-b-[1px] pl-[10px] justify-center border-gray-400 h-[60px] flex flex-col text-left ${
-                activeRoom === "room5" ? "bg-gray-600 text-white" : ""
+                activeRoom === "room5" ? "bg-gray-600 text-white" : "text-black"
               }`}
               onClick={() => joinRoom(username, "room5")}
             >
