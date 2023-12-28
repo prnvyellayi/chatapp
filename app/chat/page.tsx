@@ -205,7 +205,7 @@ const Chat = () => {
                 type="text"
                 value={message}
                 onChange={(e) => setMessage(e.target.value)}
-                className="rounded-[10px] w-[90%] bg-white px-[1vw] h-[50px] text-[17px] focus:outline-none"
+                className="rounded-[10px] w-[90%] bg-white px-[1vw] h-[50px] text-[17px] focus:outline-none text-black"
               ></input>
               <button
                 type="submit"
