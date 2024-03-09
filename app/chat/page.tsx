@@ -20,7 +20,7 @@ const Chat = () => {
 
   useEffect(() => {
     const socketInitializer = async () => {
-      socket = io(`${process.env.NEXT_PUBLIC_CHAT_SERVER}`, {
+      socket = io(`https://chatappbe-2i2v.onrender.com`, {
         reconnectionDelay: 1000,
         reconnection: true,
         transports: ["websocket"],
@@ -99,6 +99,15 @@ const Chat = () => {
     });
   };
 
+  useEffect(() => {
+    const chatEle = document!.getElementById("chatDiv");
+    chatEle!.scrollTo({
+      left: 0,
+      top: chatEle!.scrollHeight,
+      behavior: "smooth",
+    });
+  }, [messages1, messages2, messages3, messages4, messages5]);
+
   return (
     <>
       <div className="bg-gray-400 flex items-center justify-center h-[100vh]">
@@ -159,14 +168,34 @@ const Chat = () => {
                 <div className="w-full h-[80px] absolute top-0 bg-[#eae6df] text-[32px] text-[#030303] flex items-center justify-center">
                   {activeRoom.toUpperCase()}
                 </div>
-                <div className="flex flex-col p-[10px] overflow-scroll overflow-x-hidden gap-[10px] mt-[80px]">
+                <div
+                  id="chatDiv"
+                  className="flex flex-col p-[10px] overflow-scroll overflow-x-hidden gap-[10px] mt-[80px]"
+                >
                   {getMessages(activeRoom).map(
                     (
                       each: { username: string; message: string },
                       index: number
                     ) => (
-                      <div key={index} className={`flex w-full ${each.username === 'admin' ? 'justify-center' : each.username === username ? 'justify-end' : 'justify-start gap-1'} `}>
-                        <span className={`w-[30px] h-[30px] rounded-[50%] bg-gray-800 flex justify-center items-center text-white text-[18px] ${each.username === 'admin' ? 'hidden' : each.username === username ? 'hidden' : 'self-start'}`}>
+                      <div
+                        key={index}
+                        className={`flex w-full ${
+                          each.username === "admin"
+                            ? "justify-center"
+                            : each.username === username
+                            ? "justify-end"
+                            : "justify-start gap-1"
+                        } `}
+                      >
+                        <span
+                          className={`w-[30px] h-[30px] rounded-[50%] bg-gray-800 flex justify-center items-center text-white text-[18px] ${
+                            each.username === "admin"
+                              ? "hidden"
+                              : each.username === username
+                              ? "hidden"
+                              : "self-start"
+                          }`}
+                        >
                           {each.username.split("")[0].toUpperCase()}
                         </span>
                         <div

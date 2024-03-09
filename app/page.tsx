@@ -1,9 +1,8 @@
 "use client";
 
-import Link from "next/link";
 import { Context } from "@/context";
-import { useContext, useState } from "react";
 import { useRouter } from "next/navigation";
+import { useContext, useState } from "react";
 
 export default function Home() {
   const { username, secret, setUsername, setSecret } = useContext(Context);
@@ -12,13 +11,16 @@ export default function Home() {
 
   const handleSubmit = async (event: any) => {
     event.preventDefault();
-    const checkUser = await fetch(`${process.env.NEXT_PUBLIC_CHAT_SERVER}/addUser`, {
-      method: "POST",
-      headers: {
-        "content-type": "application/json",
-      },
-      body: JSON.stringify({ username: username })
-    });
+    const checkUser = await fetch(
+      `https://chatappbe-2i2v.onrender.com/addUser`,
+      {
+        method: "POST",
+        headers: {
+          "content-type": "application/json",
+        },
+        body: JSON.stringify({ username: username }),
+      }
+    );
     console.log(checkUser);
     if (checkUser.status === 200) {
       router.push("/chat");
