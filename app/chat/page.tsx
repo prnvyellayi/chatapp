@@ -1,8 +1,16 @@
 "use client";
 
+import { CreateRoom } from "@/components/chat/createRoom";
 import { Context } from "@/context";
+import { Redis } from "@upstash/redis";
 import { useContext, useEffect, useState } from "react";
 import io from "socket.io-client";
+
+const redis = new Redis({
+  url: "https://us1-gentle-oyster-38766.upstash.io",
+  token:
+    "AZduASQgYTBhZTBiMTQtYjQzMi00Zjc4LWEwZWQtZjgzYjQ1M2MzMTAwMTcxYzFjMzdiNzJlNDY5MWJmNWM2YmE1M2RkMzdmOGE=",
+});
 
 let socket: any;
 
@@ -11,16 +19,14 @@ type response = { username: string; message: string; room: string };
 const Chat = () => {
   const { username, secret } = useContext(Context);
   const [message, setMessage] = useState("");
-  const [messages1, setMessages1] = useState<any>([]);
-  const [messages2, setMessages2] = useState<any>([]);
-  const [messages3, setMessages3] = useState<any>([]);
-  const [messages4, setMessages4] = useState<any>([]);
-  const [messages5, setMessages5] = useState<any>([]);
+  const [messages, setMessages] = useState<any[]>([]);
+  const [users, setUsers] = useState<any[]>([]);
+  const [rooms, setRooms] = useState<string[]>(["room_1"]);
   const [activeRoom, setActiveRoom] = useState<any>("");
 
   useEffect(() => {
     const socketInitializer = async () => {
-      socket = io(`https://chatappbe-2i2v.onrender.com`, {
+      socket = io(`http://localhost:8080`, {
         reconnectionDelay: 1000,
         reconnection: true,
         transports: ["websocket"],
@@ -28,26 +34,31 @@ const Chat = () => {
         upgrade: false,
         rejectUnauthorized: false,
       });
-      await socket.on("message", (data: response) => {
-        console.log(data);
-        switch (data.room) {
-          case "room1":
-            setMessages1((pre: response[]) => [...pre, data]);
-            break;
-          case "room2":
-            setMessages2((pre: response[]) => [...pre, data]);
-            break;
-          case "room3":
-            setMessages3((pre: response[]) => [...pre, data]);
-            break;
-          case "room4":
-            setMessages4((pre: response[]) => [...pre, data]);
-            break;
-          case "room5":
-            setMessages5((pre: response[]) => [...pre, data]);
-            break;
-          default:
-            return [];
+      await socket.on("message", async (data: response) => {
+        if (data?.message === "newRoom") {
+          const rooms = await redis.keys("*");
+          setRooms(rooms.splice(0, rooms.length - 1));
+        } else {
+          console.log("room", activeRoom, messages)
+          setMessages((pre: response[]) => [
+            ...pre,
+            {
+              username: data?.username,
+              message: data?.message,
+            },
+          ]);
+
+          let res: any = await redis.get(data?.room);
+
+          res?.messages.push({
+            username: data?.username,
+            message: data?.message,
+          });
+
+          await redis.set(data?.room, {
+            messages: res?.messages,
+            users: [],
+          });
         }
       });
     };
@@ -55,35 +66,36 @@ const Chat = () => {
     socketInitializer();
   }, []);
 
-  const getMessages = (room: string) => {
-    switch (room) {
-      case "room1":
-        return messages1;
-      case "room2":
-        return messages2;
-      case "room3":
-        return messages3;
-      case "room4":
-        return messages4;
-      case "room5":
-        return messages5;
-      default:
-        return [];
-    }
+  const getMessages = async (room: string) => {
+    let res = await redis.get(room);
+    return res;
   };
 
   const handleSubmit = async (event: any) => {
     event.preventDefault();
-    // setMessages1((pre: response[]) => [
-    //   ...pre,
-    //   { username: username, message: message },
-    // ]);
+
     await socket.emit("send-message", { username, activeRoom, message });
+
     setMessage("");
+    const chatEle = document!.getElementById("chatDiv");
+    chatEle!.scrollTo({
+      left: 0,
+      top: chatEle!.scrollHeight,
+      behavior: "smooth",
+    });
   };
 
   const joinRoom = async (name: string, room: string) => {
     if (activeRoom === room) return;
+
+    let res: any = await redis.get(room);
+
+    if (res) {
+      setMessages(res?.messages);
+      setUsers(res?.users);
+    } else await redis.set(room, { messages: [], users: [] });
+    setMessages([]);
+
     if (activeRoom !== "") {
       await socket.emit("leaveRoom", { name, activeRoom }, (error: any) => {
         if (error) {
@@ -100,67 +112,51 @@ const Chat = () => {
   };
 
   useEffect(() => {
-    const chatEle = document!.getElementById("chatDiv");
-    chatEle!.scrollTo({
-      left: 0,
-      top: chatEle!.scrollHeight,
-      behavior: "smooth",
-    });
-  }, [messages1, messages2, messages3, messages4, messages5]);
+    const api = async () => {
+      const res: any = await getMessages(activeRoom);
+      setMessages(res?.messages);
+      setUsers(res?.users);
+    };
+    api();
+  }, [activeRoom]);
+
+  useEffect(() => {
+    const getRooms = async () => {
+      const rooms = await redis.keys("*");
+      if (rooms.length === 1) {
+        await redis.set("room_1", { messages: [], users: [] });
+        setRooms(["room_1"])
+      } else setRooms(rooms.splice(0, rooms.length - 1));
+    };
+
+    getRooms();
+  }, []);
 
   return (
     <>
       <div className="bg-gray-400 flex items-center justify-center h-[100vh]">
         <div className="flex flex-row w-[70%] h-[80%] rounded-[20px] bg-white border-2 border-gray-400 overflow-hidden">
           <div className="flex flex-col w-[30%] h-full border-r-2 border-gray-400 bg-white">
-            <span className="bg-[#eae6df] flex items-center justify-center text-[32px] h-[80px] border-b-[1px] border-gray-400">
+            <span className="bg-[#eae6df] flex items-center justify-center text-[32px] text-black h-[80px] border-b-[1px] border-gray-400">
               CHAT MATE
             </span>
-            <button
-              className={`w-full border-b-[1px] pl-[10px] justify-center border-gray-400 h-[60px] flex flex-col text-left ${
-                activeRoom === "room1" ? "bg-gray-600 text-white" : "text-black"
-              }`}
-              onClick={() => joinRoom(username, "room1")}
-            >
-              <span className="text-[20px]">Room 1</span>
-              <span className="text-[14px] text-gray-400">Join Room 1</span>
-            </button>
-            <button
-              className={`w-full border-b-[1px] pl-[10px] justify-center border-gray-400 h-[60px] flex flex-col text-left ${
-                activeRoom === "room2" ? "bg-gray-600 text-white" : "text-black"
-              }`}
-              onClick={() => joinRoom(username, "room2")}
-            >
-              <span className="text-[20px]">Room 2</span>
-              <span className="text-[14px] text-gray-400">Join Room 2</span>
-            </button>
-            <button
-              className={`w-full border-b-[1px] pl-[10px] justify-center border-gray-400 h-[60px] flex flex-col text-left ${
-                activeRoom === "room3" ? "bg-gray-600 text-white" : "text-black"
-              }`}
-              onClick={() => joinRoom(username, "room3")}
-            >
-              <span className="text-[20px]">Room 3</span>
-              <span className="text-[14px] text-gray-400">Join Room 3</span>
-            </button>
-            <button
-              className={`w-full border-b-[1px] pl-[10px] justify-center border-gray-400 h-[60px] flex flex-col text-left ${
-                activeRoom === "room4" ? "bg-gray-600 text-white" : "text-black"
-              }`}
-              onClick={() => joinRoom(username, "room4")}
-            >
-              <span className="text-[20px]">Room 4</span>
-              <span className="text-[14px] text-gray-400">Join Room 4</span>
-            </button>
-            <button
-              className={`w-full border-b-[1px] pl-[10px] justify-center border-gray-400 h-[60px] flex flex-col text-left ${
-                activeRoom === "room5" ? "bg-gray-600 text-white" : "text-black"
-              }`}
-              onClick={() => joinRoom(username, "room5")}
-            >
-              <span className="text-[20px]">Room 5</span>
-              <span className="text-[14px] text-gray-400">Join Room 5</span>
-            </button>
+            <CreateRoom setRooms={setRooms} activeRoom={activeRoom} />
+            {rooms.map((each: string) => (
+              <button
+                key={each}
+                className={`w-full border-b-[1px] pl-[10px] justify-center border-gray-400 h-[60px] flex flex-col text-left ${
+                  activeRoom === each ? "bg-gray-600 text-white" : "text-black"
+                }`}
+                onClick={() => joinRoom(username, each)}
+              >
+                <span className="text-[20px]">
+                  {each.toUpperCase()}
+                </span>
+                <span className="text-[14px] text-gray-400">
+                  Join {each}
+                </span>
+              </button>
+            ))}
           </div>
           <div className="flex flex-col justify-end w-[70%] h-full relative">
             {username && (
@@ -172,57 +168,58 @@ const Chat = () => {
                   id="chatDiv"
                   className="flex flex-col p-[10px] overflow-scroll overflow-x-hidden gap-[10px] mt-[80px]"
                 >
-                  {getMessages(activeRoom).map(
-                    (
-                      each: { username: string; message: string },
-                      index: number
-                    ) => (
-                      <div
-                        key={index}
-                        className={`flex w-full ${
-                          each.username === "admin"
-                            ? "justify-center"
-                            : each.username === username
-                            ? "justify-end"
-                            : "justify-start gap-1"
-                        } `}
-                      >
-                        <span
-                          className={`w-[30px] h-[30px] rounded-[50%] bg-gray-800 flex justify-center items-center text-white text-[18px] ${
-                            each.username === "admin"
-                              ? "hidden"
-                              : each.username === username
-                              ? "hidden"
-                              : "self-start"
-                          }`}
-                        >
-                          {each.username.split("")[0].toUpperCase()}
-                        </span>
+                  {messages?.length > 0 &&
+                    messages.map(
+                      (
+                        each: { username: string; message: string },
+                        index: number
+                      ) => (
                         <div
                           key={index}
-                          className={`max-w-[50%] rounded-[10px] p-[10px] text-[14px] break-words	flex flex-col text-left ${
+                          className={`flex w-full ${
                             each.username === "admin"
-                              ? "self-center text-[10px] text-center bg-gray-700 text-white flex items-center"
+                              ? "justify-center"
                               : each.username === username
-                              ? "self-end rounded-tr-[0px] bg-gray-500 text-white"
-                              : "self-start rounded-tl-[0px] text-[#030303] border-2 bg-gray-100"
-                          }`}
+                              ? "justify-end"
+                              : "justify-start gap-1"
+                          } `}
                         >
                           <span
-                            className={
-                              each.username === "admin" ||
-                              each.username === username
+                            className={`w-[30px] h-[30px] rounded-[50%] bg-gray-800 flex justify-center items-center text-white text-[18px] ${
+                              each.username === "admin"
                                 ? "hidden"
-                                : "font-bold text-[13px]"
-                            }
+                                : each.username === username
+                                ? "hidden"
+                                : "self-start"
+                            }`}
                           >
-                            ~ {each.username}
+                            {each.username.split("")[0].toUpperCase()}
                           </span>
-                          <span>{each.message}</span>
+                          <div
+                            key={index}
+                            className={`max-w-[50%] rounded-[10px] p-[10px] text-[14px] break-words	flex flex-col text-left ${
+                              each.username === "admin"
+                                ? "self-center text-[10px] text-center bg-gray-700 text-white flex items-center"
+                                : each.username === username
+                                ? "self-end rounded-tr-[0px] bg-gray-500 text-white"
+                                : "self-start rounded-tl-[0px] text-[#030303] border-2 bg-gray-100"
+                            }`}
+                          >
+                            <span
+                              className={
+                                each.username === "admin" ||
+                                each.username === username
+                                  ? "hidden"
+                                  : "font-bold text-[13px]"
+                              }
+                            >
+                              ~ {each.username}
+                            </span>
+                            <span>{each.message}</span>
+                          </div>
                         </div>
-                      </div>
-                    )
-                  )}
+                      )
+                    )}
                 </div>
               </>
             )}

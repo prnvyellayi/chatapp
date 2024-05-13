@@ -1,8 +1,15 @@
 "use client";
 
 import { Context } from "@/context";
+import { Redis } from "@upstash/redis";
 import { useRouter } from "next/navigation";
 import { useContext, useState } from "react";
+
+const redis = new Redis({
+  url: "https://us1-gentle-oyster-38766.upstash.io",
+  token:
+    "AZduASQgYTBhZTBiMTQtYjQzMi00Zjc4LWEwZWQtZjgzYjQ1M2MzMTAwMTcxYzFjMzdiNzJlNDY5MWJmNWM2YmE1M2RkMzdmOGE=",
+});
 
 export default function Home() {
   const { username, secret, setUsername, setSecret } = useContext(Context);
@@ -11,21 +18,19 @@ export default function Home() {
 
   const handleSubmit = async (event: any) => {
     event.preventDefault();
-    const checkUser = await fetch(
-      `https://chatappbe-2i2v.onrender.com/addUser`,
-      {
-        method: "POST",
-        headers: {
-          "content-type": "application/json",
-        },
-        body: JSON.stringify({ username: username }),
-      }
-    );
-    console.log(checkUser);
-    if (checkUser.status === 200) {
-      router.push("/chat");
+
+    let res: any = await redis.get("users");
+
+    if (!res) await redis.set("users", {});
+    res = await redis.get("users");
+
+    if (res && res.hasOwnProperty(username)) {
+      if (res[username] === secret) router.push("/chat");
+      else setError(true);
     } else {
-      setError(true);
+      res[username] = secret;
+      await redis.set("users", res);
+      router.push("/chat");
     }
   };
 
@@ -40,7 +45,7 @@ export default function Home() {
             NextJs Chat-App
             {error ? (
               <span className="text-[14px] text-red-600 font-medium">
-                Username already exists.
+                Password is incorrect
               </span>
             ) : (
               <></>
