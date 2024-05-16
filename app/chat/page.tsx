@@ -26,7 +26,7 @@ const Chat = () => {
 
   useEffect(() => {
     const socketInitializer = async () => {
-      socket = io(`http://localhost:8080`, {
+      socket = io(`https://chatappbe-2i2v.onrender.com`, {
         reconnectionDelay: 1000,
         reconnection: true,
         transports: ["websocket"],
