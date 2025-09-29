@@ -110,6 +110,7 @@ const Chat = () => {
       }
     });
   };
+    await socket.emit("join", { name, room }, (error: any) => {
 
   useEffect(() => {
     const api = async () => {
@@ -121,6 +122,7 @@ const Chat = () => {
   }, [activeRoom]);
 
   useEffect(() => {
+  }, [activeRoom]);
     const getRooms = async () => {
       const rooms = await redis.keys("*");
       if (rooms.length === 1) {
@@ -167,6 +169,7 @@ const Chat = () => {
                 <div
                   id="chatDiv"
                   className="flex flex-col p-[10px] overflow-scroll overflow-x-hidden gap-[10px] mt-[80px]"
+              <input
                 >
                   {messages?.length > 0 &&
                     messages.map(
