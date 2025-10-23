@@ -110,63 +110,141 @@ const Chat = () => {
       }
     });
   };
-
-  useEffect(() => {
-    const api = async () => {
-      const res: any = await getMessages(activeRoom);
-      setMessages(res?.messages);
-      setUsers(res?.users);
-    };
-    api();
+    await socket.emit("join", { name, room }, (error: any) => {
+    await socket.emit("join", { name, room }, (error: any) => {
+    await socket.emit("join", { name, room }, (error: any) => {
+    await socket.emit("join", { name, room }, (error: any) => {
+    await socket.emit("join", { name, room }, (error: any) => {
+    await socket.emit("join", { name, room }, (error: any) => {
+    await socket.emit("join", { name, room }, (error: any) => {
+    await socket.emit("join", { name, room }, (error: any) => {
+    await socket.emit("join", { name, room }, (error: any) => {
+    await socket.emit("join", { name, room }, (error: any) => {
+    await socket.emit("join", { name, room }, (error: any) => {
+    await socket.emit("join", { name, room }, (error: any) => {
+  }, [activeRoom]);
+    await socket.emit("join", { name, room }, (error: any) => {
+  }, [activeRoom]);
+    await socket.emit("join", { name, room }, (error: any) => {
+  }, [activeRoom]);
+    await socket.emit("join", { name, room }, (error: any) => {
+  }, [activeRoom]);
+    await socket.emit("join", { name, room }, (error: any) => {
+  }, [activeRoom]);
+    await socket.emit("join", { name, room }, (error: any) => {
+  }, [activeRoom]);
+    await socket.emit("join", { name, room }, (error: any) => {
+  }, [activeRoom]);
+    await socket.emit("join", { name, room }, (error: any) => {
+  }, [activeRoom]);
+    await socket.emit("join", { name, room }, (error: any) => {
+  }, [activeRoom]);
+    await socket.emit("join", { name, room }, (error: any) => {
+  }, [activeRoom]);
+    await socket.emit("join", { name, room }, (error: any) => {
+  }, [activeRoom]);
+    await socket.emit("join", { name, room }, (error: any) => {
+  }, [activeRoom]);
+    await socket.emit("join", { name, room }, (error: any) => {
+  }, [activeRoom]);
+    await socket.emit("join", { name, room }, (error: any) => {
+  }, [activeRoom]);
+    await socket.emit("join", { name, room }, (error: any) => {
   }, [activeRoom]);
 
+  }, [activeRoom]);
   useEffect(() => {
+  }, [activeRoom]);
+    const api = async () => {
+  }, [activeRoom]);
+      const res: any = await getMessages(activeRoom);
+  }, [activeRoom]);
+      setMessages(res?.messages);
+  }, [activeRoom]);
+      setUsers(res?.users);
+  }, [activeRoom]);
+    };
+  }, [activeRoom]);
+    api();
+  }, [activeRoom]);
+  }, [activeRoom]);
+  }, [activeRoom]);
+              <input
+
+  }, [activeRoom]);
+              <input
+  useEffect(() => {
+  }, [activeRoom]);
+              <input
     const getRooms = async () => {
       const rooms = await redis.keys("*");
+              <input
       if (rooms.length === 1) {
         await redis.set("room_1", { messages: [], users: [] });
+              <input
         setRooms(["room_1"])
       } else setRooms(rooms.splice(0, rooms.length - 1));
+              <input
     };
 
+              <input
     getRooms();
   }, []);
+              <input
 
   return (
+              <input
     <>
       <div className="bg-gray-400 flex items-center justify-center h-[100vh]">
+              <input
         <div className="flex flex-row w-[70%] h-[80%] rounded-[20px] bg-white border-2 border-gray-400 overflow-hidden">
           <div className="flex flex-col w-[30%] h-full border-r-2 border-gray-400 bg-white">
+              <input
             <span className="bg-[#eae6df] flex items-center justify-center text-[32px] text-black h-[80px] border-b-[1px] border-gray-400">
               CHAT MATE
+              <input
             </span>
             <CreateRoom setRooms={setRooms} activeRoom={activeRoom} />
+              <input
             {rooms.map((each: string) => (
               <button
+              <input
                 key={each}
                 className={`w-full border-b-[1px] pl-[10px] justify-center border-gray-400 h-[60px] flex flex-col text-left ${
+              <input
                   activeRoom === each ? "bg-gray-600 text-white" : "text-black"
                 }`}
+              <input
                 onClick={() => joinRoom(username, each)}
               >
+              <input
                 <span className="text-[20px]">
                   {each.toUpperCase()}
+              <input
                 </span>
                 <span className="text-[14px] text-gray-400">
+              <input
                   Join {each}
                 </span>
+              <input
               </button>
             ))}
+              <input
           </div>
           <div className="flex flex-col justify-end w-[70%] h-full relative">
+              <input
             {username && (
               <>
+              <input
                 <div className="w-full h-[80px] absolute top-0 bg-[#eae6df] text-[32px] text-[#030303] flex items-center justify-center">
                   {activeRoom.toUpperCase()}
+              <input
                 </div>
                 <div
+              <input
                   id="chatDiv"
                   className="flex flex-col p-[10px] overflow-scroll overflow-x-hidden gap-[10px] mt-[80px]"
+              <input
                 >
                   {messages?.length > 0 &&
                     messages.map(
